@@ -2,9 +2,10 @@ PY?=python3
 PELICAN?=pelican
 PELICANOPTS=
 
+OUTPUTDIRNAME=www
 BASEDIR=$(CURDIR)
 INPUTDIR=$(BASEDIR)/content
-OUTPUTDIR=$(BASEDIR)/www
+OUTPUTDIR=$(BASEDIR)/$(OUTPUTDIRNAME)
 CONFFILE=$(BASEDIR)/pelicanconf.py
 PUBLISHCONF=$(BASEDIR)/publishconf.py
 SECRETS_ENV=$(DS_SECRETS)
@@ -53,28 +54,23 @@ init-publish:
 	docker build --no-cache -t daniesteinke/dscom-publish docker-publish/.
 
 docker-html:
-	docker run -v $(OUTPUTDIR):/code/danielsteinke.com/output danielsteinke/dscom-build make html
+	docker run -v $(OUTPUTDIR):/code/danielsteinke.com/$(OUTPUTDIRNAME) danielsteinke/dscom-build make html
 
 docker-dns-sync:
 	docker run danielsteinke/dscom-base make dns-sync GD_API_KEY=$(GD_API_KEY) GD_API_SECRET=$(GD_API_SECRET) \
 		GD_SHOPPER_ID=$(GD_SHOPPER_ID) TARGET_DOMAIN=$(TARGET_DOMAIN) NS_DATA=$(NS_DATA)
 
 docker-serve:
-	docker run -p 8080:8080 -v $(OUTPUTDIR):/code/danielsteinke.com/output danielsteinke/dscom-build pelican -lr content -o output -p 8080 -b 0.0.0
+	docker run -p 8080:8080 -v $(OUTPUTDIR):/code/danielsteinke.com/$(OUTPUTDIRNAME) danielsteinke/dscom-build pelican -lr content -o $(OUTPUTDIRNAME) -p 8080 -b 0.0.0
 docker-serve-d:
-	docker run -d -p 8080:8080 -v $(OUTPUTDIR):/code/danielsteinke.com/output danielsteinke/dscom-build pelican -lr content -o output -p 8080 -b 0.0.0
-
-docker-publish:
-	docker run --env-file $(DS_SECRETS) -v $(PWD)/output:/code/danielsteinke.com/output danielsteinke/dscom-build make deploy
+	docker run -d -p 8080:8080 -v $(OUTPUTDIR):/code/danielsteinke.com/$(OUTPUTDIRNAME) danielsteinke/dscom-build pelican -lr content -o $(OUTPUTDIRNAME) -p 8080 -b 0.0.0
 
 html:
-	rm -rf output/*
+	rm -rf $(OUTPUTDIR)/*
+	ls -lhar $(INPUTDIR)
 	$(PELICAN) $(INPUTDIR) -o $(OUTPUTDIR) -s $(CONFFILE) $(PELICANOPTS)
-	chmod o+rwx -R output/*
-
-deploy:
-	python deploy.py
-
+	chmod o+rwx -R $(OUTPUTDIR)/*
+	
 dns-sync:
 	python dns-sync.py $(GD_API_KEY) $(GD_API_SECRET) $(GD_SHOPPER_ID) $(TARGET_DOMAIN) $(NS_DATA)
 
@@ -85,7 +81,7 @@ regenerate:
 	$(PELICAN) -r $(INPUTDIR) -o $(OUTPUTDIR) -s $(CONFFILE) $(PELICANOPTS)
 
 serve:
-	$(PELICAN) -lr $(INPUTDIR) -o output -p 8080 -b 0.0.0.0
+	$(PELICAN) -lr $(INPUTDIR) -o $(OUTPUTDIRNAME) -p 8080 -b 0.0.0.0
 
 
 devserver:

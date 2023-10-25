@@ -6,7 +6,7 @@ import os
 import subprocess
 AUTHOR = 'Dan Steinke'
 SITENAME = 'DanielSteinke.com'
-SITEURL = ''
+SITEURL = 'www.danielsteinke.com'
 
 PATH = os.path.abspath('content')
 THEME = os.path.abspath('theme')

@@ -2,7 +2,7 @@ title: How this site is created and published - Part 1
 summary: Website Publishing Automation with Gitp and Python; deployed on object storage and CDN.
 status: draft
 category: Projects
-slug: projects/website-automation
+slug: projects/website-automation2
 author: dsteinke
 
 - I originally created this website about five years ago, mostly as a technical exercise. 
